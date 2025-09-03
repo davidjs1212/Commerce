@@ -5,10 +5,13 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User
+from django.contrib.auth.decorators import login_required
+
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    #listings = Listing.objects.filter(active=True)
+    return render(request, "auctions/index.html")#, {"listings": listings})
 
 
 def login_view(request):
@@ -61,3 +64,23 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+
+
+@login_required
+def watchlist(request):
+    pass
+
+"""
+@login_required
+def create_listing(request):
+    pass
+
+
+def listing(request, listing_id):
+    pass
+
+@login_required
+def watchlist(request):
+    pass
+"""
