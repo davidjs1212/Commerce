@@ -3,7 +3,20 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    {% for listing in listings %}
-        <li>{{ listing }}</li>
-    {% endfor %}
+    <ul>
+        {% for listing in listings %}
+
+            <li>
+                <strong>Title: {{ listing.title }}</strong><br>
+                Description: {{ listing.description }}<br>
+                Current Price: ${{ listing.current_price }}<br>
+                
+                {% if listing.photo %}
+                    <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No active listings</li>
+        {% endfor %}
+    </ul>   
 {% endblock %}

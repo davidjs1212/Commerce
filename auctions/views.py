@@ -4,14 +4,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Listing, Bid , Comment
 from django.contrib.auth.decorators import login_required
-
+from .forms import ListingForm
 
 
 def index(request):
-    #listings = Listing.objects.filter(active=True)
-    return render(request, "auctions/index.html")#, {"listings": listings})
+    listings = Listing.objects.filter(active=True)
+    return render(request, "auctions/index.html", {"listings": listings})
 
 
 def login_view(request):
@@ -66,17 +66,30 @@ def register(request):
         return render(request, "auctions/register.html")
     
 
+@login_required
+def create_listing(request):
+    if request.method == "POST":
+        form = ListingForm(request.POST)
+        if form.is_valid():
+            listing = form.save(commit=False)
+            listing.owner = request.user
+            listing.save()
+            return HttpResponseRedirect(reverse(index))
+    else:
+        form = ListingForm()
+
+    return render(request, "auctions/create_listing.html",{
+        "form":form
+    })
+
+
 
 @login_required
 def watchlist(request):
     pass
 
+
 """
-@login_required
-def create_listing(request):
-    pass
-
-
 def listing(request, listing_id):
     pass
 
