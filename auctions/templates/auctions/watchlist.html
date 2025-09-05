@@ -1,6 +1,20 @@
 {% extends "auctions/layout.html" %}
 
-{% blockbody %}
-<h2>Watchlist</h2>
+{% block title %} Watchlist {% endblock %}
 
+{% block body %}
+  <h2>Your Watchlist</h2>
+  <ul>
+    {% for listing in listings %}
+      <li>
+        <a href="{% url 'listing' listing.id %}"><strong>{{ listing.title }}</strong></a><br>
+        {{ listing.description|truncatechars:140 }}<br>
+        {% if listing.photo %}
+          <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Your watchlist is empty.</li>
+    {% endfor %}
+  </ul>
 {% endblock %}

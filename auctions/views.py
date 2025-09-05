@@ -16,13 +16,9 @@ def index(request):
 
 def login_view(request):
     if request.method == "POST":
-
-        # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-
-        # Check if authentication successful
         if user is not None:
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
@@ -43,16 +39,12 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
-
-        # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "auctions/register.html", {
                 "message": "Passwords must match."
             })
-
-        # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
@@ -86,14 +78,33 @@ def create_listing(request):
 
 @login_required
 def watchlist(request):
-    pass
+    listings = request.user.watchlist.all().select_related("owner")
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })
 
-
-"""
-def listing(request, listing_id):
-    pass
 
 @login_required
-def watchlist(request):
-    pass
-"""
+def toggle_watch(request, listing_id):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("watchlist"))
+    listing = Listing.objects.get(pk=listing_id)
+    if request.user in listing.watchers.all():
+        listing.watchers.remove(request.user)
+    else:
+        listing.watchers.add(request.user)
+    return HttpResponseRedirect(reverse("watchlist"))
+
+
+def listing(request, listing_id):
+    listing = Listing.objects.get(pk=listing_id)
+    return render(request, "auctions/listing.html", {
+        "listing": listing
+    })
+
+
+def category(request):
+    listings = Listing.objects.get(category=category)
+    return render(request, "auctions/category.html", {
+        "listing": listing
+    })

@@ -1,5 +1,7 @@
 {% extends "auctions/layout.html" %}
 
+
+
 {% block body %}
     <h2>Active Listings</h2>
 
@@ -7,7 +9,7 @@
         {% for listing in listings %}
 
             <li>
-                <strong>Title: {{ listing.title }}</strong><br>
+                <strong><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></strong><br>
                 Description: {{ listing.description }}<br>
                 Current Price: ${{ listing.current_price }}<br>
                 

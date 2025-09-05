@@ -1,0 +1,49 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{ listing.title }}</h2>
+
+    {% if listing.photo %}
+        <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:240px;">
+    {% endif %}
+
+    <p><strong>Description:</strong> {{ listing.description }}</p>
+
+    <p>
+        <strong>Category:</strong>
+        {{ listing.category|default:"—" }}
+    </p>
+
+    <p>
+        <strong>Starting price:</strong> ${{ listing.starting_bid }}
+    </p>
+
+    <p>
+        <strong>Owner:</strong> {{ listing.owner.username }}
+        {% if listing.active %}
+            <span style="color: green; font-weight: 600;">(Active)</span>
+        {% else %}
+            <span style="color: #a00; font-weight: 600;">(Closed)</span>
+        {% endif %}
+    </p>
+
+
+    {% if user.is_authenticated %}
+       <form action="{% url 'toggle_watch' listing.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            {% if user.is_authenticated %}
+                {% if user in listing.watchers.all %}
+                    <button type="submit">Remove from Watchlist</button>
+                {% else %}
+                    <button type="submit">Add to Watchlist</button>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}">Sign in to add to Watchlist</a>
+            {% endif %}
+        </form>
+    <!-- Bid form-->
+    <!-- Close listing-->
+    {% else %}
+        <p><a href="{% url 'login' %}">Sign in</a> to bid or add to your watchlist.</p>
+    {% endif %}
+{% endblock %}
