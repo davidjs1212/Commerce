@@ -1,15 +1,15 @@
 {% extends "auctions/layout.html" %}
-{% block title %} Categories {% endblock %}
+{% block title %} Category {{ listings.category }} {% endblock %}
 {% block body %}
-    <h2>Categories</h2>
+    <h2>{{listings.category}}</h2>
 
 {% for listing in listings %}
     <ul>
-        {% if listing.category %}
+        
             <li>
-                <strong><a href="{% url 'category_listing' %}">{{ listing.category }}</a></strong>
+                <strong><a href="{% url 'listing' category_id%}">{{ listing.category }}</a></strong>
             </li>
-        {% endif %}
+       
     </ul>        
 {% empty %}
 No active listings with a category specified

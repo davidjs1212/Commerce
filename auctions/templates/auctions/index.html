@@ -13,9 +13,13 @@
                 Description: {{ listing.description }}<br>
                 Current Price: ${{ listing.current_price }}<br>
                 
+                {% if listing.category %}
+                    Category: {{ listing.category }}<br>
+                {% endif %}
                 {% if listing.photo %}
                     <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
                 {% endif %}
+                
             </li>
         {% empty %}
             <li>No active listings</li>

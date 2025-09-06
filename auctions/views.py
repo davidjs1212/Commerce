@@ -75,7 +75,6 @@ def create_listing(request):
     })
 
 
-
 @login_required
 def watchlist(request):
     listings = request.user.watchlist.all().select_related("owner")
@@ -104,7 +103,15 @@ def listing(request, listing_id):
 
 
 def category(request):
-    listings = Listing.objects.get(category=category)
+    listings = Listing.objects.filter(active=True)
     return render(request, "auctions/category.html", {
-        "listing": listing
+        "listings": listings,
+        
+    })
+
+
+def category_listing(request, category_id):
+    listings = Listing.objects.get(id=category_id)
+    return render(request, "auctions/category_listing.html", {
+        "listings": listings
     })
