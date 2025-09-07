@@ -1,5 +1,7 @@
 {% extends "auctions/layout.html" %}
 
+<title>{% block title %}{{listing.title}}{% endblock %}</title>
+
 {% block body %}
     <h2>{{ listing.title }}</h2>
 

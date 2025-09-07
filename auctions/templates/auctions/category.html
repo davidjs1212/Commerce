@@ -3,15 +3,15 @@
 {% block body %}
     <h2>Categories</h2>
 
-{% for listing in listings %}
     <ul>
-        {% if listing.category %}
+        {% for category in categories %}
+            
             <li>
-                <strong><a href="{% url 'category_listing' %}">{{ listing.category }}</a></strong>
-            </li>
-        {% endif %}
-    </ul>        
-{% empty %}
-No active listings with a category specified
-{% endfor %}
+                <strong><a href="{% url 'category_listing' category %}">{{ category }}</a></strong>
+            </li>          
+
+        {% empty %}
+            No active listings with a category specified
+        {% endfor %}
+    </ul>
 {% endblock %}

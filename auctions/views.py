@@ -66,7 +66,7 @@ def create_listing(request):
             listing = form.save(commit=False)
             listing.owner = request.user
             listing.save()
-            return HttpResponseRedirect(reverse(index))
+            return HttpResponseRedirect(reverse("index"))
     else:
         form = ListingForm()
 
@@ -103,15 +103,21 @@ def listing(request, listing_id):
 
 
 def category(request):
-    listings = Listing.objects.filter(active=True)
+    categories = (
+        Listing.objects.filter(active=True)
+        .exclude(category__exact="")
+        .values_list("category", flat=True)
+        .distinct()
+        .order_by("category")
+    )
     return render(request, "auctions/category.html", {
-        "listings": listings,
-        
+        "categories": categories,
     })
 
 
-def category_listing(request, category_id):
-    listings = Listing.objects.get(id=category_id)
+def category_listing(request, category):
+    listings = Listing.objects.filter(active=True, category__iexact=category)
     return render(request, "auctions/category_listing.html", {
-        "listings": listings
+        "category": category,
+        "listings": listings,
     })
