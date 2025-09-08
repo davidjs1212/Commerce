@@ -1,5 +1,5 @@
 from django import forms
-from .models import Listing
+from .models import Listing, Bid, Comment
 
 
 class ListingForm(forms.ModelForm):
@@ -13,4 +13,17 @@ class ListingForm(forms.ModelForm):
             "starting_bid": forms.NumberInput(attrs={"class": "form-control", "step": "0.01","placeholder": "$0.00"}),
             "photo": forms.URLInput(attrs={"class": "form-control", "placeholder": "Optional"}),
             "category": forms.TextInput(attrs={"class": "form-control", "placeholder": "Optional"}),
+        }
+
+
+class BidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = ["amount"]
+
+        widgets = {
+            "amount": forms.NumberInput(attrs={"class": "form-control", "step": "0.01", "placeholder": "Enter your bid"})
+        }
+        labels = {
+            "amount": "Your Bid ($)"
         }

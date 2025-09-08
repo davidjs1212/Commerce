@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from .models import User, Listing, Bid , Comment
 from django.contrib.auth.decorators import login_required
-from .forms import ListingForm
+from .forms import ListingForm, BidForm
 
 
 def index(request):
@@ -56,7 +56,53 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
-    
+
+
+def listing(request, listing_id):
+    listing = Listing.objects.get(pk=listing_id)
+    bid_form = BidForm()
+    if request.method == "POST":
+        if request.user.is_authenticated:
+
+            if request.POST.get("action") == "bid" and listing.active:
+                bid_form = BidForm(request.POST)
+                if bid_form.is_valid():
+                    amount = bid_form.cleaned_data["amount"]
+                    current = listing.current_price()
+                    if amount < listing.starting_bid:
+                        message = f"Your bid must be at least ${listing.starting_bid}"
+                        return render(request, "auctions/listing.html", {
+                        "listing": listing,
+                        "bid_form": bid_form,
+                        "message": message,
+                        "current_price": current
+                        })
+                    elif amount <= current:
+                        message = f"Your bid must be higher than ${current}"
+                        return render(request, "auctions/listing.html", {
+                        "listing": listing,
+                        "bid_form": bid_form,
+                        "message": message,
+                        "current_price": current
+                    })
+
+                    else:
+                        Bid.objects.create(
+                            listing=listing,
+                            bidder=request.user,
+                            amount=amount
+                        )
+                        return HttpResponseRedirect(reverse("listing", args=[listing.id]))
+
+        else:
+            return HttpResponseRedirect(reverse("login"))
+
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "bid_form": bid_form,
+        "current_price": listing.current_price(),
+    })
+
 
 @login_required
 def create_listing(request):
@@ -93,13 +139,6 @@ def toggle_watch(request, listing_id):
     else:
         listing.watchers.add(request.user)
     return HttpResponseRedirect(reverse("watchlist"))
-
-
-def listing(request, listing_id):
-    listing = Listing.objects.get(pk=listing_id)
-    return render(request, "auctions/listing.html", {
-        "listing": listing
-    })
 
 
 def category(request):

@@ -19,33 +19,51 @@
     <p>
         <strong>Starting price:</strong> ${{ listing.starting_bid }}
     </p>
+        <p>
+        <strong>Current price:</strong> ${{ listing.current_price }}
+    </p>
 
     <p>
         <strong>Owner:</strong> {{ listing.owner.username }}
         {% if listing.active %}
-            <span style="color: green; font-weight: 600;">(Active)</span>
+            <span style="color: green; font-weight: 600;">(This Listing is Active)</span>
         {% else %}
-            <span style="color: #a00; font-weight: 600;">(Closed)</span>
+            <span style="color: #a00; font-weight: 600;">(This Listing is Closed)</span>
         {% endif %}
     </p>
 
 
     {% if user.is_authenticated %}
-       <form action="{% url 'toggle_watch' listing.id %}" method="post" style="display:inline;">
+        <form action="{% url 'toggle_watch' listing.id %}" method="post" style="display:inline;">
             {% csrf_token %}
-            {% if user.is_authenticated %}
-                {% if user in listing.watchers.all %}
-                    <button type="submit">Remove from Watchlist</button>
-                {% else %}
-                    <button type="submit">Add to Watchlist</button>
-                {% endif %}
+            {% if user in listing.watchers.all %}
+                <button type="submit">Remove from Watchlist</button>
             {% else %}
-                <a href="{% url 'login' %}">Sign in to add to Watchlist</a>
+                <button type="submit">Add to Watchlist</button>
             {% endif %}
         </form>
+
     <!-- Bid form-->
+        {% if listing.active %}
+            <form method="post" action="{% url 'listing' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="bid">
+
+                {% if message %}
+                    {{ message }}
+                {% endif %}
+                {{ bid_form.as_p }}
+                <button type="submit">Place Bid</button>
+            </form>
+        {% endif %}
+
     <!-- Close listing-->
+
+
+
+
+    
     {% else %}
-        <p><a href="{% url 'login' %}">Sign in</a> to bid or add to your watchlist.</p>
+        <p><a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.</p>
     {% endif %}
 {% endblock %}

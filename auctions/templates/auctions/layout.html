@@ -43,6 +43,9 @@
             {% endif %}
         </ul>
         <hr>
+        {% if error %}
+            {{ error }}
+        {% endif %}
         {% block body %}
         {% endblock %}
     </body>
