@@ -17,6 +17,7 @@ class Listing(models.Model):
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     watchers = models.ManyToManyField(User, related_name="watchlist", blank=True)
+    winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="wins")
     
     def current_price(self):
         # Return highest bid if present, else return starting bid.

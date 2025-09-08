@@ -7,12 +7,20 @@
   <ul>
     {% for listing in listings %}
       <li>
-        <a href="{% url 'listing' listing.id %}"><strong>{{ listing.title }}</strong></a><br>
-        {{ listing.description|truncatechars:140 }}<br>
-        {% if listing.photo %}
-          <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
-        {% endif %}
+        <a href="{% url 'listing' listing.id %}"><strong>{{ listing.title }}</strong></a>
+          {% if not listing.active %}
+            <span style="color: red; font-weight: 600;">(Closed)</span><br> 
+            Sale Price: ${{ listing.current_price|floatformat:2 }}
+          {% else %}
+            <span style="color: green; font-weight: 600;">(Active)</span><br>
+          Current Price: ${{ listing.current_price|floatformat:2 }}            
+          {% endif %}<br>
+
+          {% if  listing.winner == user %}
+              <p><span style="color: green; font-weight: 600;">(You won this auction!)</span></p>
+          {% endif %}
       </li>
+      <hr>
     {% empty %}
       Your watchlist is empty.
     {% endfor %}

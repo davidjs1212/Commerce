@@ -7,11 +7,19 @@ from django.urls import reverse
 from .models import User, Listing, Bid , Comment
 from django.contrib.auth.decorators import login_required
 from .forms import ListingForm, BidForm
+from django.db.models import Max
 
 
 def index(request):
     listings = Listing.objects.filter(active=True)
-    return render(request, "auctions/index.html", {"listings": listings})
+    return render(request, "auctions/index.html", {
+        "listings": listings
+        })
+
+
+def closed_listings(request):
+    closed_listings = Listing.objects.filter(active=False)
+    return render(request, "auctions/closed_listings.html", {"closed_listings": closed_listings})
 
 
 def login_view(request):
@@ -60,47 +68,98 @@ def register(request):
 
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
+    user_top_bid = None
+    if request.user.is_authenticated:
+        user_top_bid = listing.bids.filter(bidder=request.user).aggregate(Max("amount"))["amount__max"]
     bid_form = BidForm()
     if request.method == "POST":
         if request.user.is_authenticated:
-
             if request.POST.get("action") == "bid" and listing.active:
+                if request.user == listing.owner:
+                    return render(request, "auctions/listing.html", {
+                        "listing": listing,
+                        "bid_form": bid_form,
+                        "message": "The owner cannot bid on their own listing.",
+                        "current_price": listing.current_price(),
+                        "has_bids": listing.bids.exists(),
+                        "user_top_bid": user_top_bid,
+                    })
                 bid_form = BidForm(request.POST)
+                current = listing.starting_bid
                 if bid_form.is_valid():
                     amount = bid_form.cleaned_data["amount"]
-                    current = listing.current_price()
-                    if amount < listing.starting_bid:
-                        message = f"Your bid must be at least ${listing.starting_bid}"
-                        return render(request, "auctions/listing.html", {
-                        "listing": listing,
-                        "bid_form": bid_form,
-                        "message": message,
-                        "current_price": current
-                        })
-                    elif amount <= current:
-                        message = f"Your bid must be higher than ${current}"
-                        return render(request, "auctions/listing.html", {
-                        "listing": listing,
-                        "bid_form": bid_form,
-                        "message": message,
-                        "current_price": current
-                    })
-
+                    if listing.bids.exists():
+                        current = listing.current_price()
+                        if amount <= current:
+                            return render(request, "auctions/listing.html", {
+                            "listing": listing,
+                            "bid_form": bid_form,
+                            "message": f"Your bid must be higher than ${current}",
+                            "current_price": current,
+                            "has_bids": listing.bids.exists(),
+                            "user_top_bid": user_top_bid,
+                        })               
+                        else:
+                            Bid.objects.create(
+                                listing=listing,
+                                bidder=request.user,
+                                amount=amount
+                            )
+                            return HttpResponseRedirect(reverse("listing", args=[listing.id]))
                     else:
+                        # no bids yet
+                        if amount < current:
+                            return render(request, "auctions/listing.html", {
+                                "listing": listing,
+                                "bid_form": bid_form,
+                                "message": f"Your bid must be at least ${current}",
+                                "current_price": current,
+                                "has_bids": False,
+                                "user_top_bid": user_top_bid,
+                            })
                         Bid.objects.create(
                             listing=listing,
                             bidder=request.user,
                             amount=amount
                         )
-                        return HttpResponseRedirect(reverse("listing", args=[listing.id]))
+                    return HttpResponseRedirect(reverse("listing", args=[listing.id]))
+                else:
+                    return render(request, "auctions/listing.html", {
+                    "listing": listing,
+                    "bid_form": bid_form, 
+                    "message": f"Please enter a valid bid",
+                    "current_price": listing.current_price(),
+                    "has_bids": listing.bids.exists(),
+                    "user_top_bid": user_top_bid,
+                })
 
+            if request.POST.get("action") == "close" and listing.active:
+                if request.user == listing.owner:
+                    top_bid = listing.bids.order_by("-amount").first()
+                    listing.active = False
+                    if top_bid:
+                        listing.winner = top_bid.bidder
+                    listing.save()
+                    return HttpResponseRedirect(reverse("listing",args=[listing.id]))
+                else:
+                    return render(request, "auctions/listing.html", {
+                        "listing": listing,
+                        "bid_form": bid_form,
+                        "message": "Only the listing owner can close an auction.",
+                        "current_price": listing.current_price(),
+                        "has_bids": listing.bids.exists(),
+                        "user_top_bid": user_top_bid,
+                    })
         else:
             return HttpResponseRedirect(reverse("login"))
 
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "bid_form": bid_form,
+        "message": None,
         "current_price": listing.current_price(),
+        "has_bids": listing.bids.exists(),
+        "user_top_bid": user_top_bid,
     })
 
 

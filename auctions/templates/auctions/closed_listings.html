@@ -3,15 +3,15 @@
 
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Closed Listings</h2>
 
     <ul>
-        {% for listing in listings %}
+        {% for listing in closed_listings %}
 
             <li>
                 <strong><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></strong><br>
                 Description: {{ listing.description }}<br>
-                Current Price: ${{ listing.current_price|floatformat:2 }}<br>
+                Final Price: ${{ listing.current_price|floatformat:2 }}<br>
                 
                 {% if listing.category %}
                     Category: {{ listing.category }}<br>
@@ -22,7 +22,7 @@
                 
             </li>
         {% empty %}
-            <li>No active listings</li>
+            <li>No closed listings</li>
         {% endfor %}
     </ul>   
 {% endblock %}

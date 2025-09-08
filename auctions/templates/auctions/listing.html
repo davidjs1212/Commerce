@@ -1,10 +1,19 @@
 {% extends "auctions/layout.html" %}
 
-<title>{% block title %}{{listing.title}}{% endblock %}</title>
+{% block title %}{{ listing.title }}{% endblock %}
 
 {% block body %}
     <h2>{{ listing.title }}</h2>
-
+    <p>
+        {% if listing.active %}
+            <span style="color: green; font-weight: 600;">(Active Auction)</span>
+        {% else %}
+            <span style="color: red; font-weight: 600;">(Closed Auction)</span>
+            {% if listing.winner == user %}
+                <span style="color: green; font-weight: 600;">Congratulations! You won this auction!</span>
+            {% endif %}
+        {% endif %}
+    </p>    
     {% if listing.photo %}
         <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:240px;">
     {% endif %}
@@ -12,29 +21,57 @@
     <p><strong>Description:</strong> {{ listing.description }}</p>
 
     <p>
-        <strong>Category:</strong>
-        {{ listing.category|default:"—" }}
+        <strong>Category:</strong>{{ listing.category|default:"N/A" }}
     </p>
 
     <p>
-        <strong>Starting price:</strong> ${{ listing.starting_bid }}
+        <strong>Starting price:</strong> ${{ listing.starting_bid|floatformat:2 }}
     </p>
-        <p>
-        <strong>Current price:</strong> ${{ listing.current_price }}
-    </p>
-
+        
     <p>
-        <strong>Owner:</strong> {{ listing.owner.username }}
         {% if listing.active %}
-            <span style="color: green; font-weight: 600;">(This Listing is Active)</span>
+            <strong>Current price:</strong>
+            {% if has_bids %}
+                ${{ listing.current_price|floatformat:2 }}
+            {% else %}
+                No bids yet. 
+            {% endif %}
         {% else %}
-            <span style="color: #a00; font-weight: 600;">(This Listing is Closed)</span>
+            <strong>Final price:</strong>
+            ${{ listing.current_price|floatformat:2 }}
         {% endif %}
     </p>
+    {% if user_top_bid and listing.active %}
+        <p>
+            <strong>Your highest bid: </strong>${{ user_top_bid|floatformat:2 }}
+                {% if user_top_bid == listing.current_price %}
+                    <span style="color: green; font-weight: 600;">(You currently have the highest bid)</span>
+                {% endif %}
+   
+        </p>
+    {% endif %}
+
+    <p>
+        <strong>Listed by:</strong> {{ listing.owner.username }}
+    </p>
+
+
+    <!-- Bid form-->
+        {% if listing.active and user != listing.owner %}
+            <form method="post" action="{% url 'listing' listing.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="bid">
+                {{ bid_form.as_p }}
+                <button type="submit">Place Bid</button>
+            </form>
+        {% endif %}
+        <br>
+    <!-- Comment form-->
+
 
 
     {% if user.is_authenticated %}
-        <form action="{% url 'toggle_watch' listing.id %}" method="post" style="display:inline;">
+        <form action="{% url 'toggle_watch' listing.id %}" method="post" class="mb-3">
             {% csrf_token %}
             {% if user in listing.watchers.all %}
                 <button type="submit">Remove from Watchlist</button>
@@ -42,27 +79,25 @@
                 <button type="submit">Add to Watchlist</button>
             {% endif %}
         </form>
-
-    <!-- Bid form-->
-        {% if listing.active %}
-            <form method="post" action="{% url 'listing' listing.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="bid">
-
-                {% if message %}
-                    {{ message }}
-                {% endif %}
-                {{ bid_form.as_p }}
-                <button type="submit">Place Bid</button>
-            </form>
-        {% endif %}
+        <br>
 
     <!-- Close listing-->
+            {% if listing.active and user == listing.owner %}
+            <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="close">
+                <button type="submit"> Close Auction</button>
+            </form> 
+            {% endif %}
+
+   
 
 
 
 
-    
+
+
+
     {% else %}
         <p><a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.</p>
     {% endif %}
