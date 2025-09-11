@@ -150,6 +150,14 @@ def listing(request, listing_id):
                         "has_bids": listing.bids.exists(),
                         "user_top_bid": user_top_bid,
                     })
+        #
+            if request.POST.get("action") == "comment":
+                comment_form = Comment
+        
+        
+        
+        
+        #
         else:
             return HttpResponseRedirect(reverse("login"))
 
