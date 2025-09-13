@@ -25,7 +25,7 @@ class Listing(models.Model):
         return highest.amount if highest else self.starting_bid
 
     def __str__(self):
-        return f"{self.title} created by {self.owner} on {self.created}."
+        return f"{self.title}"
     
     class Meta:
         ordering = ["-created"]
@@ -38,7 +38,7 @@ class Bid(models.Model):
     placed_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Bid {self.amount} by {self.bidder} at {self.placed_at}"
+        return f"Bid {self.amount} by {self.bidder}"
     
     class Meta:
         ordering = ["-placed_at"]

@@ -3,12 +3,23 @@ from django.contrib import admin
 from .models import User, Listing, Bid, Comment
 
 # Register your models here.
-admin.site.register(Listing)
+
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "owner", "active", "category", "created")
+    list_display = ("id", "title", "owner", "active", "starting_bid", "current_price", "winner", "category", "created")
     list_filter = ("active", "category")
     search_fields = ("title", "description")
 
+
+class BidAdmin(admin.ModelAdmin):
+    list_display = ("id", "listing", "bidder", "amount", "placed_at")
+    search_fields = ("listing__title", "bidder__username")
+
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ("listing", "author", "created_at")
+    search_fields = ("listing__title", "author__username")
+
 admin.site.register(User)
-admin.site.register(Bid)
-admin.site.register(Comment)
+admin.site.register(Bid, BidAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Listing, ListingAdmin)

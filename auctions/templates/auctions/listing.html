@@ -32,19 +32,19 @@
         {% if listing.active %}
             <strong>Current price:</strong>
             {% if has_bids %}
-                ${{ listing.current_price|floatformat:2 }}
+                ${{ current_price|floatformat:2 }}
             {% else %}
                 No bids yet. 
             {% endif %}
         {% else %}
             <strong>Final price:</strong>
-            ${{ listing.current_price|floatformat:2 }}
+            ${{ current_price|floatformat:2 }}
         {% endif %}
     </p>
     {% if user_top_bid and listing.active %}
         <p>
             <strong>Your highest bid: </strong>${{ user_top_bid|floatformat:2 }}
-                {% if user_top_bid == listing.current_price %}
+                {% if user_top_bid == current_price %}
                     <span style="color: green; font-weight: 600;">(You currently have the highest bid)</span>
                 {% endif %}
    
@@ -54,23 +54,19 @@
     <p>
         <strong>Listed by:</strong> {{ listing.owner.username }}
     </p>
-
-
-    <!-- Bid form-->
-        {% if listing.active and user != listing.owner %}
-            <form method="post" action="{% url 'listing' listing.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="bid">
-                {{ bid_form.as_p }}
-                <button type="submit">Place Bid</button>
-            </form>
-        {% endif %}
-        <br>
-    <!-- Comment form-->
-
-
+    <p>
+        <strong>Comments:</strong> 
+    </p>
+    <ul>
+        {% for comment in comments %}
+            <li>{{ comment.body }}</li>
+        {% empty %}
+        <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
 
     {% if user.is_authenticated %}
+    <!-- Watchlist-->
         <form action="{% url 'toggle_watch' listing.id %}" method="post" class="mb-3">
             {% csrf_token %}
             {% if user in listing.watchers.all %}
@@ -79,16 +75,41 @@
                 <button type="submit">Add to Watchlist</button>
             {% endif %}
         </form>
-        <br>
+
 
     <!-- Close listing-->
-            {% if listing.active and user == listing.owner %}
+        {% if listing.active and user == listing.owner %}
+        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="close">
+            <button type="submit"> Close Auction</button>
+        </form> 
+        {% endif %}
+
+
+
+    <!-- Bid form-->
+        {% if listing.active and user != listing.owner %}
             <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="close">
-                <button type="submit"> Close Auction</button>
-            </form> 
-            {% endif %}
+                <input type="hidden" name="action" value="bid">
+                {{ bid_form.as_p }}
+                <button type="submit">Place Bid</button>
+            </form>
+        {% endif %}
+
+    <!-- Comment form-->
+            <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="comment">
+                {{ comment_form.as_p }}
+                <button type="submit">Post</button>
+            </form>
+
+
+
+
+
 
    
 
