@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
     </head>
-    <body>
+    <body class="header">
         <h1>Auctions</h1>
         <div>
             {% if user.is_authenticated %}
@@ -51,7 +51,41 @@
                 <span class="alert alert-danger" role="alert">Error: {{ message }}</span>
             {% endif %}
         </p>  
-        {% block body %}
-        {% endblock %}
+        <div class="container my-3">
+            {% block body %}
+            
+            {% endblock %}
+
+            {% block content %}
+                {% if listings %}
+                    {% for listing in listings %}
+                        <a href="{% url 'listing' listing.id %}" class="text-reset text-decoration-none">
+                            <div class="card mb-5 shadow hover-card">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col-md-3">
+                                        {% if listing.photo %}
+                                            <img src="{{ listing.photo }}" class="img-fluid rounded-left"
+                                            style="height:150px; object-fit:cover; width:100%">
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="card-body">
+                                            <h3 class="card-title mb-3">{{ listing.title }}</h3>     
+                                            <p class="card-text mb-1">{{ listing.description }}</p>
+                                            <p class="mb-3">Current Price: ${{ listing.current_price|floatformat:2 }}</p>
+                                            <p class="text-muted mb-0">
+                                                <small>Created at: {{ listing.created }} by {{ listing.owner }}</small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>    
+                    {% empty %}
+                        <div class="alert alert-info">No active listings</div>
+                    {% endfor %}
+                {% endif %}
+            {% endblock %}
+        </div>
     </body>
 </html>

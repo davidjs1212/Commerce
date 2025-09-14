@@ -1,15 +1,18 @@
 {% extends "auctions/layout.html" %}
-{% block title %} Categories {% endblock %}
-{% block body %}
-    <h2>Categories</h2>
 
-    <ul>
-        {% for category in categories %}
-            <li>
-                <strong><a href="{% url 'category_listing' category %}">{{ category }}</a></strong>
-            </li>          
-        {% empty %}
-            No active listings with a category specified
-        {% endfor %}
-    </ul>
+{% block title %} Categories {% endblock %}
+
+{% block body %}
+        <h2 class="mb-5">Categories</h2>
+        <div class="d-flex flex-column">
+            {% for category in categories %}
+                <a href="{% url 'category_listing' category %}" class="text-reset text-decoration-none">
+                    <div class="card mb-3 shadow-sm hover-card p-3">
+                        {{ category }}
+                    </div>
+                </a>
+            {% empty %}
+                <div class="alert alert-info">No active listings with a category specified</div>
+            {% endfor %}
+        </div>
 {% endblock %}

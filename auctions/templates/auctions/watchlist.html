@@ -3,26 +3,48 @@
 {% block title %} Watchlist {% endblock %}
 
 {% block body %}
-  <h2>Your Watchlist</h2>
-  <ul>
-    {% for listing in listings %}
-      <li>
-        <a href="{% url 'listing' listing.id %}"><strong>{{ listing.title }}</strong></a>
-          {% if not listing.active %}
-            <span style="color: red; font-weight: 600;">(Closed)</span><br> 
-            Sale Price: ${{ listing.current_price|floatformat:2 }}
-          {% else %}
-            <span style="color: green; font-weight: 600;">(Active)</span><br>
-          Current Price: ${{ listing.current_price|floatformat:2 }}            
-          {% endif %}<br>
+    <h2 class="mb-5">Your Watchlist</h2>
 
-          {% if  listing.winner == user %}
-              <p><span style="color: green; font-weight: 600;">(You won this auction!)</span></p>
-          {% endif %}
-      </li>
-      <hr>
+    {% for listing in listings %}
+        <a href="{% url 'listing' listing.id %}" class="text-reset text-decoration-none">
+            <div class="card mb-4 shadow hover-card">
+                <div class="row no-gutters align-items-center">
+                    <div class="col-12 col-md-3">
+                        {% if listing.photo %}
+                            <img src="{{ listing.photo }}" class="img-fluid rounded-left"
+                            style="max-height:150px; object-fit:cover; width:100%;">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 col-md-9">
+                        <div class="card-body">
+                            <h3 class="card-title mb-3">{{ listing.title }}</h3>
+                            <p class="card-text mb-1">{{ listing.description }}</p>
+                            {% if listing.category %}
+                                <p class="mb-2">Category: {{ listing.category }}</p>
+                            {% endif %}
+                            {% if listing.active %}
+                                <p class="mb-1 text-success font-weight-bold">Active</p>
+                                <p class="mb-1"><strong>Current Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                            {% else %}
+                                <p class="mb-1 text-danger font-weight-bold">Closed</p>
+                                <p class="mb-1"><strong>Final Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                                {% if listing.winner == user %}
+                                    <p class="mb-2">
+                                        <span class="badge badge-success">You won this auction!</span>
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+
+                            <p class="text-muted mb-0">
+                                <small>Created: {{ listing.created }} by {{ listing.owner }}</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
     {% empty %}
-      Your watchlist is empty.
+        <div class="alert alert-info">Your watchlist is empty.</div>
     {% endfor %}
-  </ul>
 {% endblock %}

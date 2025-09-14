@@ -1,26 +1,46 @@
 {% extends "auctions/layout.html" %}
 
-
-
 {% block body %}
-    <h2>Closed Listings</h2>
+  <h2 class="mb-5">Closed Listings</h2>
 
-    <ul>
-        {% for listing in closed_listings %}
-            <li>
-                <strong><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></strong><br>
-                Description: {{ listing.description }}<br>
-                Final Price: ${{ listing.current_price|floatformat:2 }}<br>
-                
-                {% if listing.category %}
-                    Category: {{ listing.category }}<br>
-                {% endif %}
-                {% if listing.photo %}
-                    <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>No closed listings</li>
-        {% endfor %}
-    </ul>   
+{% for listing in closed_listings %}
+    <a href="{% url 'listing' listing.id %}" class="text-reset text-decoration-none">
+        <div class="card mb-5 shadow hover-card">
+            <div class="row no-gutters align-items-center">
+                <div class="col-12 col-md-3">
+                    {% if listing.photo %}
+                        <img src="{{ listing.photo }}" class="img-fluid rounded-left"
+                        style="max-height:150px; object-fit:cover; width:100%;">
+                    {% endif %}
+                </div>
+
+                <div class="col-12 col-md-9">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3">{{ listing.title }}</h3>
+                        <p class="card-text mb-1">{{ listing.description }}</p>
+                        <p class="mb-1"><strong>Final Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                        {% if listing.category %}
+                            <p class="mb-2">Category: {{ listing.category }}</p>
+                        {% endif %}
+
+                        {% if listing.winner %}
+                            <p class="mb-0">
+                                <span class="badge badge-secondary">Winner: {{ listing.winner.username }}</span>
+                                {% if user.is_authenticated and listing.winner == user %}
+                                    <span class="badge badge-success ml-1">You won</span>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+
+                        <p class="text-muted mb-0 mt-2">
+                            <small>Created: {{ listing.created }} by {{ listing.owner }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+{% empty %}
+    <div class="alert alert-info">No closed listings</div>
+{% endfor %}
 {% endblock %}

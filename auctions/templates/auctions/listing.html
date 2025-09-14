@@ -4,119 +4,133 @@
 
 {% block body %}
     <div class="container py-3">
-        <h2>{{ listing.title }}</h2>
-    <p>
-        {% if listing.active %}
-            <span style="color: green; font-weight: 600;">(Active Auction)</span>
-        {% else %}
-            <span style="color: red; font-weight: 600;">(Closed Auction)</span>
-            {% if listing.winner == user %}
-                <span style="color: green; font-weight: 600;">Congratulations! You won this auction!</span>
-            {% endif %}
-        {% endif %}
-    </p>    
-    {% if listing.photo %}
-        <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:240px;">
-    {% endif %}
 
-    <p>
-        <strong>Description:</strong> {{ listing.description }}
-    </p>
+        <!-- Listing header card -->
+        <div class="card mb-4 shadow">
+            <div class="card-body">
+                <h2 class="card-title">Listing: {{ listing.title }}</h2>
 
-    <p>
-        <strong>Category:</strong>{{ listing.category|default:" N/A" }}
-    </p>
-
-    <p>
-        <strong>Starting price:</strong> ${{ listing.starting_bid|floatformat:2 }}
-    </p>
-        
-    <p>
-        {% if listing.active %}
-            <strong>Current price:</strong>
-            {% if has_bids %}
-                ${{ current_price|floatformat:2 }}
-            {% else %}
-                No bids yet. 
-            {% endif %}
-        {% else %}
-            <strong>Final price:</strong>
-            ${{ current_price|floatformat:2 }}
-        {% endif %}
-    </p>
-    {% if user_top_bid and listing.active %}
-        <p>
-            <strong>Your highest bid: </strong>${{ user_top_bid|floatformat:2 }}
-                {% if user_top_bid == current_price %}
-                    <span style="color: green; font-weight: 600;">(You currently have the highest bid)</span>
-                {% endif %}
-        </p>
-    {% endif %}
-
-    <p>
-        <strong>Listed by:</strong> {{ listing.owner.username }}
-    </p>
-    <p>
-        <strong>Comments:</strong> 
-    </p>
-    
-        {% for comment in comments %}
-            <div class="comment">
-                <strong>
-                    {{ comment.author.username }}
-                    {% if comment.author == listing.owner %}
-                        <span class="badge">Seller</span>
+                {% if listing.active %}
+                    <span class="badge badge-success">Active Auction</span>
+                {% else %}
+                    <span class="badge badge-danger">Closed Auction</span>
+                    {% if listing.winner == user %}
+                        <span class="badge badge-success">Congratulations! You won!</span>
                     {% endif %}
-                </strong>
-                <span class="ts">{{ comment.created_at }}</span>
-                <p>{{ comment.body }}</p>
+                {% endif %}
             </div>
-        {% empty %}
-            <p>No comments yet.</p>
-        {% endfor %}
-    
-
-    {% if user.is_authenticated %}
-    <!-- Watchlist-->
-        <form action="{% url 'toggle_watch' listing.id %}" method="post" class="mb-3">
-            {% csrf_token %}
-            {% if user in listing.watchers.all %}
-                <button type="submit">Remove from Watchlist</button>
-            {% else %}
-                <button type="submit">Add to Watchlist</button>
+            {% if listing.photo %}
+                <img src="{{ listing.photo }}" alt="{{ listing.title }}" 
+                     class="card-img-bottom" style="max-height:240px; object-fit:cover;">
             {% endif %}
-        </form>
+        </div>
 
-    <!-- Bid form-->
-        {% if listing.active and user != listing.owner %}
-            <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+        <!-- Listing details card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <p><strong>Description:</strong> {{ listing.description }}</p>
+                <p><strong>Category:</strong> {{ listing.category|default:"N/A" }}</p>
+                <p><strong>Starting Price:</strong> ${{ listing.starting_bid|floatformat:2 }}</p>
+
+                {% if listing.active %}
+                    <p>
+                        <strong>Current Price:</strong>
+                        {% if has_bids %}
+                            ${{ current_price|floatformat:2 }}
+                        {% else %}
+                            No bids yet.
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p><strong>Final Price:</strong> ${{ current_price|floatformat:2 }}</p>
+                {% endif %}
+
+                {% if user_top_bid and listing.active %}
+                    <p>
+                        <strong>Your Highest Bid:</strong> ${{ user_top_bid|floatformat:2 }}
+                        {% if user_top_bid == current_price %}
+                            <span class="badge badge-success">You currently have the highest bid</span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+                <p><strong>Listed by:</strong> {{ listing.owner.username }}</p>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5>Comments</h5>
+                {% for comment in comments %}
+                    <div class="border rounded p-2 mb-2">
+                        <strong>{{ comment.author.username }}</strong>
+                        {% if comment.author == listing.owner %}
+                            <span class="badge badge-secondary">Seller</span>
+                        {% endif %}
+                        <span class="text-muted small">{{ comment.created_at }}</span>
+                        <p class="mb-0">{{ comment.body }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No comments yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        {% if user.is_authenticated %}
+
+            <!-- Bid -->
+            {% if listing.active and user != listing.owner %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h5>Place a Bid</h5>
+                        <form method="post" action="{% url 'listing' listing.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="bid">
+                            {{ bid_form.as_p }}
+                            <button type="submit" class="btn btn-success">Place Bid</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <!-- Comment -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5>Leave a Comment</h5>
+                    <form method="post" action="{% url 'listing' listing.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="comment">
+                        {{ comment_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+            <!-- Watchlist -->
+            <form action="{% url 'toggle_watch' listing.id %}" method="post" class="mb-3">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="bid">
-                {{ bid_form.as_p }}
-                <button type="submit">Place Bid</button>
+                {% if user in listing.watchers.all %}
+                    <button type="submit" class="btn btn-outline-danger">Remove from Watchlist</button>
+                {% else %}
+                    <button type="submit" class="btn btn-outline-primary">Add to Watchlist</button>
+                {% endif %}
             </form>
+
+
+            <!-- Close listing -->
+            {% if listing.active and user == listing.owner %}
+                <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="close">
+                    <button type="submit" class="btn btn-danger">Close Auction</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <p>
+                <a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.
+            </p>
         {% endif %}
-
-    <!-- Comment form-->
-        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="comment">
-            {{ comment_form.as_p }}
-            <button type="submit">Post</button>
-        </form>
-
-    <!-- Close listing-->
-        {% if listing.active and user == listing.owner %}
-        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="close">
-            <button type="submit">Close Auction</button>
-        </form> 
-        {% endif %}
-
-
-    {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.</p>
-    {% endif %}
     </div>
 {% endblock %}

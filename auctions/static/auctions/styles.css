@@ -1,8 +1,9 @@
-body {
-    padding: 10px;
+.hover-card:hover {
+    border-color: #262627; /* highlight border */
+    background-color: #f8f9fa; /* light gray */
 }
 
-span {
-    color: green; 
-    font-weight: 600;
+.header {
+    padding: 10px;
+    margin: 10px;
 }
