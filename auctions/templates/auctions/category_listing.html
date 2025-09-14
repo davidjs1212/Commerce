@@ -5,11 +5,9 @@
 
     <ul>
         {% for listing in listings %}
-        
             <li>
                 <strong><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></strong>
             </li>
-
         {% empty %}
             No active '{{ category}}' listings.
         {% endfor %}

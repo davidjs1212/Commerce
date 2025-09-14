@@ -3,7 +3,8 @@
 {% block title %}{{ listing.title }}{% endblock %}
 
 {% block body %}
-    <h2>{{ listing.title }}</h2>
+    <div class="container py-3">
+        <h2>{{ listing.title }}</h2>
     <p>
         {% if listing.active %}
             <span style="color: green; font-weight: 600;">(Active Auction)</span>
@@ -18,10 +19,12 @@
         <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:240px;">
     {% endif %}
 
-    <p><strong>Description:</strong> {{ listing.description }}</p>
+    <p>
+        <strong>Description:</strong> {{ listing.description }}
+    </p>
 
     <p>
-        <strong>Category:</strong>{{ listing.category|default:"N/A" }}
+        <strong>Category:</strong>{{ listing.category|default:" N/A" }}
     </p>
 
     <p>
@@ -47,7 +50,6 @@
                 {% if user_top_bid == current_price %}
                     <span style="color: green; font-weight: 600;">(You currently have the highest bid)</span>
                 {% endif %}
-   
         </p>
     {% endif %}
 
@@ -57,13 +59,22 @@
     <p>
         <strong>Comments:</strong> 
     </p>
-    <ul>
+    
         {% for comment in comments %}
-            <li>{{ comment.body }}</li>
+            <div class="comment">
+                <strong>
+                    {{ comment.author.username }}
+                    {% if comment.author == listing.owner %}
+                        <span class="badge">Seller</span>
+                    {% endif %}
+                </strong>
+                <span class="ts">{{ comment.created_at }}</span>
+                <p>{{ comment.body }}</p>
+            </div>
         {% empty %}
-        <li>No comments yet.</li>
+            <p>No comments yet.</p>
         {% endfor %}
-    </ul>
+    
 
     {% if user.is_authenticated %}
     <!-- Watchlist-->
@@ -76,18 +87,6 @@
             {% endif %}
         </form>
 
-
-    <!-- Close listing-->
-        {% if listing.active and user == listing.owner %}
-        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="close">
-            <button type="submit"> Close Auction</button>
-        </form> 
-        {% endif %}
-
-
-
     <!-- Bid form-->
         {% if listing.active and user != listing.owner %}
             <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
@@ -99,27 +98,25 @@
         {% endif %}
 
     <!-- Comment form-->
-            <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="comment">
-                {{ comment_form.as_p }}
-                <button type="submit">Post</button>
-            </form>
+        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="comment">
+            {{ comment_form.as_p }}
+            <button type="submit">Post</button>
+        </form>
 
-
-
-
-
-
-   
-
-
-
-
-
+    <!-- Close listing-->
+        {% if listing.active and user == listing.owner %}
+        <form method="post" action="{% url 'listing' listing.id %}" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="close">
+            <button type="submit">Close Auction</button>
+        </form> 
+        {% endif %}
 
 
     {% else %}
         <p><a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.</p>
     {% endif %}
+    </div>
 {% endblock %}

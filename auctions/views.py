@@ -17,11 +17,6 @@ def index(request):
         })
 
 
-def closed_listings(request):
-    closed_listings = Listing.objects.filter(active=False)
-    return render(request, "auctions/closed_listings.html", {"closed_listings": closed_listings})
-
-
 def login_view(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -74,12 +69,16 @@ def listing(request, listing_id):
     comment_form = CommentForm()
     comments = listing.comments.select_related("author").all()
 
+    # Redirect to login for POST method if user is not signed in
     if request.method == "POST" and not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
     
     if request.user.is_authenticated:
+        # Determine the highest bid of current user
         user_top_bid = listing.bids.filter(bidder=request.user).aggregate(Max("amount"))["amount__max"]
+        
         if request.method == "POST":
+             # Validate comment and save to db
             if request.POST.get("action") == "comment":
                 comment_form = CommentForm(request.POST)
                 if comment_form.is_valid():
@@ -90,19 +89,25 @@ def listing(request, listing_id):
                     )
                     return HttpResponseRedirect(reverse("listing", args=[listing.id]))
                 
+            # Bid   
             elif request.POST.get("action") == "bid" and listing.active:
+
+                # Prevent users from bidding on their own listing
                 if request.user == listing.owner:
                     message = "The owner cannot bid on their own listing."
+
+                # Validate bid and save to db
                 else:
                     bid_form = BidForm(request.POST)
                     current = listing.starting_bid
                     if bid_form.is_valid():
                         amount = bid_form.cleaned_data["amount"]
+
+                        # Check if bid is higher than any existing bid
                         if listing.bids.exists():
                             current = listing.current_price()
                             if amount <= current:
                                 message = f"Your bid must be higher than ${current}"
-        
                             else:
                                 Bid.objects.create(
                                     listing=listing,
@@ -111,7 +116,8 @@ def listing(request, listing_id):
                                 )
                                 return HttpResponseRedirect(reverse("listing", args=[listing.id]))
                         else:
-                            # no bids yet
+
+                            # Check if user bid  is at least the starting bid amount
                             if amount < current:
                                 message = f"Your bid must be at least ${current}"
                             else:
@@ -124,7 +130,7 @@ def listing(request, listing_id):
                     else:
                         message = "Please enter a valid bid"
 
-
+            # Allow listing owner to close auction and determine auction winner
             elif request.POST.get("action") == "close" and listing.active:
                 if request.user == listing.owner:
                     top_bid = listing.bids.order_by("-amount").first()
@@ -136,7 +142,6 @@ def listing(request, listing_id):
                 else:
                     message = "Only the listing owner can close an auction."
 
-                
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "bid_form": bid_form,
@@ -147,8 +152,6 @@ def listing(request, listing_id):
         "user_top_bid": user_top_bid,
         "comments": comments,
     })
-
-
 
 
 @login_required
@@ -162,13 +165,13 @@ def create_listing(request):
             return HttpResponseRedirect(reverse("index"))
     else:
         form = ListingForm()
-
     return render(request, "auctions/create_listing.html",{
         "form":form
     })
 
 
 @login_required
+# Get all listings being watched by user
 def watchlist(request):
     listings = request.user.watchlist.all().select_related("owner")
     return render(request, "auctions/watchlist.html", {
@@ -177,6 +180,7 @@ def watchlist(request):
 
 
 @login_required
+# Allow user to add and remove listings from watchlist
 def toggle_watch(request, listing_id):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("watchlist"))
@@ -188,6 +192,7 @@ def toggle_watch(request, listing_id):
     return HttpResponseRedirect(reverse("watchlist"))
 
 
+# Get all unique listing categories
 def category(request):
     categories = (
         Listing.objects.filter(active=True)
@@ -207,3 +212,8 @@ def category_listing(request, category):
         "category": category,
         "listings": listings,
     })
+
+
+def closed_listings(request):
+    closed_listings = Listing.objects.filter(active=False)
+    return render(request, "auctions/closed_listings.html", {"closed_listings": closed_listings})

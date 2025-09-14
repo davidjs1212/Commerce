@@ -7,7 +7,6 @@
 
     <ul>
         {% for listing in closed_listings %}
-
             <li>
                 <strong><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></strong><br>
                 Description: {{ listing.description }}<br>
@@ -19,7 +18,6 @@
                 {% if listing.photo %}
                     <img src="{{ listing.photo }}" alt="{{ listing.title }}" style="max-height:120px;">
                 {% endif %}
-                
             </li>
         {% empty %}
             <li>No closed listings</li>
