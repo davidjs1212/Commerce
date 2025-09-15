@@ -7,7 +7,6 @@
 
     <form method="post">
         {% csrf_token %}
-
         {% for field in form %}
             <div class="form-group">
                 {{ field.label_tag }}
@@ -17,6 +16,6 @@
                 {% endif %}
             </div>
         {% endfor %}
-        <button type="submit">Create</button>
+        <button type="submit" class="btn btn-success">Create</button>
     </form>
 {% endblock %}

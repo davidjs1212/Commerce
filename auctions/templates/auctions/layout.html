@@ -48,7 +48,7 @@
         <hr>
         <p>
             {% if message %}
-                <span class="alert alert-danger" role="alert">Error: {{ message }}</span>
+                <div class="alert alert-danger" role="alert">Error: {{ message }}</div>
             {% endif %}
         </p>  
         <div class="container my-3">
@@ -74,7 +74,7 @@
                                             <p class="card-text mb-1">{{ listing.description }}</p>
                                             <p class="mb-3">Current Price: ${{ listing.current_price|floatformat:2 }}</p>
                                             <p class="text-muted mb-0">
-                                                <small>Created at: {{ listing.created }} by {{ listing.owner }}</small>
+                                                <small>Created: {{ listing.created }} by {{ listing.owner }}</small>
                                             </p>
                                         </div>
                                     </div>
