@@ -3,11 +3,7 @@
 {% block title %}{{ listing.title }}{% endblock %}
 
 {% block body %}
-    {% if not user.is_authenticated %}
-        <p class="text-center h5 my-4">
-            <a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.
-        </p>
-    {% endif %}
+
 
     <div class="card mb-4 shadow">
         <div class="card-header bg-white">
@@ -27,14 +23,15 @@
                 {% if listing.photo %}
                     <div class="col-12 mb-3">
                         <img src="{{ listing.photo }}" alt="{{ listing.title }}"
-                             class="img-fluid rounded"
-                             style="max-height:240px; object-fit:cover; width:100%;">
+                        class="listing-photo">
                     </div>
                 {% endif %}
 
                 <div class="col-12">
-                    <p class="mb-2"><strong>Description:</strong> {{ listing.description }}</p>
-                    <p class="mb-2"><strong>Category:</strong> {{ listing.category|default:"N/A" }}</p>
+                    <p class="mb-4"><strong>Description:</strong> {{ listing.description }}</p>
+                    {% if category %}
+                        <p class="mb-2"><strong>Category:</strong> {{ listing.category }}</p>
+                    {% endif %}
                     <p class="mb-2"><strong>Starting Price:</strong> ${{ listing.starting_bid|floatformat:2 }}</p>
 
                     {% if listing.active %}
@@ -47,7 +44,13 @@
                             {% endif %}
                         </p>
                     {% else %}
-                        <p class="mb-2"><strong>Final Price:</strong> ${{ current_price|floatformat:2 }}</p>
+                        <p class="mb-2"><strong>Final Price: </strong>
+                            {% if has_bids %}
+                                ${{ current_price|floatformat:2 }}
+                            {% else %}
+                                Item not sold
+                            {% endif %}
+                        </p>
                     {% endif %}
 
                     {% if user_top_bid and listing.active %}
@@ -106,7 +109,7 @@
         <div class="card-body">
             <h4 class="mb-3">Comments</h4>
             {% for comment in comments %}
-                <div class="border rounded p-2 mb-2">
+                <div class="border rounded p-2 mb-3">
                     <strong>{{ comment.author.username }}</strong>
                     {% if comment.author == listing.owner %}
                         <span class="badge badge-secondary">Seller</span>

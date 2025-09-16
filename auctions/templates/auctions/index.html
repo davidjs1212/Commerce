@@ -4,4 +4,7 @@
 
 {% block body %}
     <h2 class="mb-5">Active Listings</h2>
+    {% if not listings %}
+        <div class="alert alert-info">No active listings</div>
+    {% endif %}
 {% endblock %}

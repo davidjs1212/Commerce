@@ -1,9 +1,24 @@
 .hover-card:hover {
-    border-color: #262627; /* highlight border */
-    background-color: #f8f9fa; /* light gray */
+    border-color: darkgray; 
+    background-color: #f8f9fa;
 }
 
 .header {
     padding: 10px;
     margin: 10px;
+}
+
+.thumbnail {
+    display: block;
+    height: 250px;
+    width: 100%;
+    object-fit: contain;
+}
+
+.listing-photo {
+  max-width: 100%;
+  height: auto;
+  max-height: 35vh;
+  display: block;
+  margin: 0 auto;
 }

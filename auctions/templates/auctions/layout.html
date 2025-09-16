@@ -23,15 +23,15 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'category' %}">Categories</a>
             </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="{% url 'closed_listings' %}">Closed Listings</a>
+            </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'create' %}">Create Listing</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'closed_listings' %}">Closed Listings</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
@@ -45,13 +45,19 @@
                 </li>
             {% endif %}
         </ul>
+
         <hr>
-        <p>
-            {% if message %}
-                <div class="alert alert-danger" role="alert">Error: {{ message }}</div>
-            {% endif %}
-        </p>  
+        {% if not user.is_authenticated %}
+            <p class="text-center h5 my-4">
+                <a href="{% url 'login' %}">Log in</a> to bid, comment, or add to your watchlist.
+            </p>
+        {% endif %}
+        {% if message %}
+            <div class="alert alert-danger" role="alert">Error: {{ message }}</div>
+        {% endif %}
+        
         <div class="container my-3">
+
             {% block body %}
             
             {% endblock %}
@@ -60,20 +66,19 @@
                 {% if listings %}
                     {% for listing in listings %}
                         <a href="{% url 'listing' listing.id %}" class="text-reset text-decoration-none">
-                            <div class="card mb-5 shadow hover-card">
+                            <div class="card mb-4 shadow hover-card">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col-md-3">
                                         {% if listing.photo %}
-                                            <img src="{{ listing.photo }}" class="img-fluid rounded-left"
-                                            style="height:150px; object-fit:cover; width:100%">
+                                            <img src="{{ listing.photo }}" class="thumbnail">
                                         {% endif %}
                                     </div>
                                     <div class="col-md-9">
                                         <div class="card-body">
                                             <h3 class="card-title mb-3">{{ listing.title }}</h3>     
-                                            <p class="card-text mb-1">{{ listing.description }}</p>
-                                            <p class="mb-3">Current Price: ${{ listing.current_price|floatformat:2 }}</p>
-                                            <p class="text-muted mb-0">
+                                            <p class="card-text mb-3">{{ listing.description }}</p>
+                                            <p class="mb-3"><strong>Current Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                                            <p class="text-muted">
                                                 <small>Created: {{ listing.created }} by {{ listing.owner }}</small>
                                             </p>
                                         </div>
@@ -81,8 +86,6 @@
                                 </div>
                             </div>
                         </a>    
-                    {% empty %}
-                        <div class="alert alert-info">No active listings</div>
                     {% endfor %}
                 {% endif %}
             {% endblock %}

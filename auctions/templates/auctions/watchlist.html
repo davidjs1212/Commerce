@@ -11,15 +11,14 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col-12 col-md-3">
                         {% if listing.photo %}
-                            <img src="{{ listing.photo }}" class="img-fluid rounded-left"
-                            style="max-height:150px; object-fit:cover; width:100%;">
+                            <img src="{{ listing.photo }}" class="thumbnail">
                         {% endif %}
                     </div>
 
                     <div class="col-12 col-md-9">
                         <div class="card-body">
                             <h3 class="card-title mb-3">{{ listing.title }}</h3>
-                            <p class="card-text mb-1">{{ listing.description }}</p>
+                            <p class="card-text mb-2">{{ listing.description }}</p>
                             {% if listing.category %}
                                 <p class="mb-2">Category: {{ listing.category }}</p>
                             {% endif %}
@@ -47,4 +46,6 @@
     {% empty %}
         <div class="alert alert-info">Your watchlist is empty.</div>
     {% endfor %}
+{% endblock %}
+{% block content %}
 {% endblock %}
