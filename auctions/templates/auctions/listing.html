@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load humanize %}
 
 {% block title %}{{ listing.title }}{% endblock %}
 
@@ -32,13 +33,13 @@
                     {% if category %}
                         <p class="mb-2"><strong>Category:</strong> {{ listing.category }}</p>
                     {% endif %}
-                    <p class="mb-2"><strong>Starting Price:</strong> ${{ listing.starting_bid|floatformat:2 }}</p>
+                    <p class="mb-2"><strong>Starting Price:</strong> ${{ listing.starting_bid|floatformat:2|intcomma }}</p>
 
                     {% if listing.active %}
                         <p class="mb-2">
                             <strong>Current Price:</strong>
                             {% if has_bids %}
-                                ${{ current_price|floatformat:2 }}
+                                ${{ current_price|floatformat:2|intcomma }}
                             {% else %}
                                 <span class="text-muted">No bids yet.</span>
                             {% endif %}
@@ -46,7 +47,7 @@
                     {% else %}
                         <p class="mb-2"><strong>Final Price: </strong>
                             {% if has_bids %}
-                                ${{ current_price|floatformat:2 }}
+                                ${{ current_price|floatformat:2|intcomma }}
                             {% else %}
                                 Item not sold
                             {% endif %}
@@ -55,7 +56,7 @@
 
                     {% if user_top_bid and listing.active %}
                         <p class="mb-2">
-                            <strong>Your Highest Bid:</strong> ${{ user_top_bid|floatformat:2 }}
+                            <strong>Your Highest Bid:</strong> ${{ user_top_bid|floatformat:2|intcomma }}
                             {% if user_top_bid == current_price %}
                                 <span class="badge badge-success">You currently have the highest bid</span>
                             {% endif %}

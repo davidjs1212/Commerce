@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load humanize %}
 
 {% block title %} Watchlist {% endblock %}
 
@@ -24,10 +25,10 @@
                             {% endif %}
                             {% if listing.active %}
                                 <p class="mb-1 text-success font-weight-bold">Active</p>
-                                <p class="mb-1"><strong>Current Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                                <p class="mb-1"><strong>Current Price:</strong> ${{ listing.current_price|floatformat:2|intcomma }}</p>
                             {% else %}
                                 <p class="mb-1 text-danger font-weight-bold">Closed</p>
-                                <p class="mb-1"><strong>Final Price:</strong> ${{ listing.current_price|floatformat:2 }}</p>
+                                <p class="mb-1"><strong>Final Price:</strong> ${{ listing.current_price|floatformat:2|intcomma }}</p>
                                 {% if listing.winner == user %}
                                     <p class="mb-2">
                                         <span class="badge badge-success">You won this auction!</span>
