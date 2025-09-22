@@ -27,10 +27,12 @@ A web-based auction platform where users can create listings, place bids, commen
 ## How to Run
 1. Clone this repository  
 2. Navigate into the project folder  
-3. Install dependencies:  
+3. Install dependencies, run migrations, and start the server:  
    ```bash
    pip install -r requirements.txt
-4. Run database migrations and start the server:
    python manage.py migrate
    python manage.py runserver
-5. Open in your browser at http://127.0.0.1:8000/
+   ```
+4. Open in your browser at:
+   http://127.0.0.1:8000/
+
